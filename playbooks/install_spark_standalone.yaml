@@ -5,13 +5,17 @@
       - name: Prepare SPARK_HOME directory
         become: yes
         file:
+            owner: phoenix
+            group: phoenix
             state: directory
             path: "{{ spark_home }}"
-            mode: 01755
+            mode: 0755
 
       - name: Unarchive spark to SPARK_HOME
         become: yes
         unarchive:
+            owner: phoenix
+            group: phoenix
             remote_src: yes
             src: https://www-eu.apache.org/dist/spark/spark-2.4.0/spark-2.4.0-bin-hadoop2.7.tgz
             dest: "{{ spark_home }}"

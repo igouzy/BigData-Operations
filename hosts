@@ -19,3 +19,4 @@ spark_home=/apps/spark
 [hadoop:vars]
 java_home=/usr/lib/jvm
 hadoop_home=/apps/hadoop
+hadoop_data=/apps/hadoop/hadoop-2.9.2/data

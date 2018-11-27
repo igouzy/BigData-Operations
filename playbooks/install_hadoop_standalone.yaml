@@ -7,11 +7,24 @@
         file:
             state: directory
             path: "{{ hadoop_home }}"
-            mode: 01755
+            owner: phoenix
+            group: phoenix
+            mode: 0755
 
-      - name: Unarchive hadoop to SPARK_HOME
+      - name: Prepare HADOOP_DATA directory
+        become: yes
+        file:
+            state: directory
+            path: "{{ hadoop_data }}"
+            owner: phoenix
+            group: phoenix
+            mode: 0755
+
+      - name: Unarchive hadoop to HADOOP_HOME
         become: yes
         unarchive:
+            owner: phoenix
+            group: phoenix
             remote_src: yes
             src: https://www-eu.apache.org/dist/hadoop/common/hadoop-2.9.2/hadoop-2.9.2.tar.gz
             dest: "{{ hadoop_home }}"
@@ -29,4 +42,82 @@
             path: /etc/profile
             regexp: '^export PATH=${HADOOP_HOME}/bin'
             line: 'export PATH=${HADOOP_HOME}/bin:$PATH'
+
+      - name: Update core-site.xml
+        become: yes
+        lineinfile:
+            path: "{{ hadoop_home }}/hadoop-2.9.2/etc/hadoop/core-site.xml"
+            regexp: '<name>fs.defaultFS</name>'
+            insertbefore: '</configuration>'
+            line: '<property><name>fs.defaultFS</name><value>hdfs://localhost:9000</value></property>'
+
+      - name: Update core-site.xml
+        become: yes
+        lineinfile:
+            path: "{{ hadoop_home }}/hadoop-2.9.2/etc/hadoop/core-site.xml"
+            regexp: '<name>hadoop.tmp.dir</name>'
+            insertbefore: '</configuration>'
+            line: "<property><name>hadoop.tmp.dir</name><value>{{ hadoop_data }}/tmp</value></property>"
+
+      - name: Update core-site.xml
+        become: yes
+        lineinfile:
+            path: "{{ hadoop_home }}/hadoop-2.9.2/etc/hadoop/core-site.xml"
+            regexp: '<name>hadoop.proxyuser.phoenix.hosts</name>'
+            insertbefore: '</configuration>'
+            line: '<property><name>hadoop.proxyuser.phoenix.hosts</name><value>*</value></property>'
+
+      - name: Update core-site.xml
+        become: yes
+        lineinfile:
+            path: "{{ hadoop_home }}/hadoop-2.9.2/etc/hadoop/core-site.xml"
+            regexp: '<name>hadoop.proxyuser.phoenix.groups</name>'
+            insertbefore: '</configuration>'
+            line: '<property><name>hadoop.proxyuser.phoenix.groups</name><value>*</value></property>'
+
+      - name: Update hdfs-site.xml
+        become: yes
+        lineinfile:
+            path: "{{ hadoop_home }}/hadoop-2.9.2/etc/hadoop/hdfs-site.xml"
+            regexp: '<name>dfs.replication</name>'
+            insertbefore: '</configuration>'
+            line: '<property><name>dfs.replication</name><value>1</value></property>'
+
+      - name: Update hdfs-site.xml
+        become: yes
+        lineinfile:
+            path: "{{ hadoop_home }}/hadoop-2.9.2/etc/hadoop/hdfs-site.xml"
+            regexp: '<name>dfs.http.address</name>'
+            insertbefore: '</configuration>'
+            line: '<property><name>dfs.http.address</name><value>0.0.0.0:50070</value></property>'
+
+      - name: Update hdfs-site.xml
+        become: yes
+        lineinfile:
+            path: "{{ hadoop_home }}/hadoop-2.9.2/etc/hadoop/hdfs-site.xml"
+            regexp: '<name>dfs.namenode.name.dir</name>'
+            insertbefore: '</configuration>'
+            line: "<property><name>dfs.namenode.name.dir</name><value>{{ hadoop_data }}/name</value></property>"
+
+      - name: Update hdfs-site.xml
+        become: yes
+        lineinfile:
+            path: "{{ hadoop_home }}/hadoop-2.9.2/etc/hadoop/hdfs-site.xml"
+            regexp: '<name>dfs.datanode.name.dir</name>'
+            insertbefore: '</configuration>'
+            line: "<property><name>dfs.datanode.name.dir</name><value>{{ hadoop_data }}/data</value></property>"
+
+      - name: Configure hadoop environment
+        become: yes
+        lineinfile:
+            path: "{{ hadoop_home }}/hadoop-2.9.2/etc/hadoop/hadoop-env.sh"
+            regexp: "^JAVA_HOME="
+            line: "JAVA_HOME={{ java_home }}/jdk1.8.0_191"
+
+      - name: Configure hadoop environment
+        become: yes
+        lineinfile:
+            path: "{{ hadoop_home }}/hadoop-2.9.2/etc/hadoop/hadoop-env.sh"
+            regexp: "^HADOOP_HOME="
+            line: "HADOOP_HOME={{ hadoop_home }}/hadoop-2.9.2"
 
