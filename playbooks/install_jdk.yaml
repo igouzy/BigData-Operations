@@ -30,14 +30,12 @@
             regexp: '^export JRE_HOME='
             line: 'export JRE_HOME=${JAVA_HOME}/jre'
 
-
       - name: Register CLASSPATH
         become: yes
         lineinfile:
             path: /etc/profile
             regexp: '^export CLASSPATH='
             line: 'export CLASSPATH=.:${JAVA_HOME}/lib:${JRE_HOME}/lib'
-
 
       - name: Register PATH
         become: yes

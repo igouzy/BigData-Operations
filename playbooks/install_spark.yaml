@@ -9,7 +9,7 @@
             path: "{{ spark_home }}"
             mode: 01755
 
-      - name: Unarchive JDK to SPARK_HOME
+      - name: Unarchive spark to SPARK_HOME
         become: yes
         unarchive:
             remote_src: yes
@@ -30,4 +30,24 @@
             regexp: '^export PATH=$\{SPARK_HOME\}/bin'
             line: 'export PATH=${SPARK_HOME}/bin:$PATH'
 
+      - name: Prepare spark environment file
+        become: yes
+        file:
+            state: touch
+            path: "{{ spark_home }}/spark-2.4.0-bin-hadoop2.7/conf/spark-env.sh"
+            mode: 0755
+
+      - name: Configure spark environment
+        become: yes
+        lineinfile:
+            path: "{{ spark_home }}/spark-2.4.0-bin-hadoop2.7/conf/spark-env.sh"
+            regexp: "^JAVA_HOME="
+            line: "JAVA_HOME={{ java_home }}/jdk1.8.0_191"
+
+      - name: Configure spark environment
+        become: yes
+        lineinfile:
+            path: "{{ spark_home }}/spark-2.4.0-bin-hadoop2.7/conf/spark-env.sh"
+            regexp: "^SPARK_HOME="
+            line: "SPARK_HOME={{ spark_home }}/spark-2.4.0-bin-hadoop2.7"
 
