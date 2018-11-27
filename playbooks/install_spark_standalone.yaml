@@ -27,7 +27,7 @@
         become: yes
         lineinfile:
             path: /etc/profile
-            regexp: '^export PATH=$\{SPARK_HOME\}/bin'
+            regexp: '^export PATH=${SPARK_HOME}/bin'
             line: 'export PATH=${SPARK_HOME}/bin:$PATH'
 
       - name: Prepare spark environment file

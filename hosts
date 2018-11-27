@@ -6,9 +6,16 @@ local
 [spark]
 local
 
+[hadoop]
+local
+
 [java:vars]
 java_home=/usr/lib/jvm
 
 [spark:vars]
 java_home=/usr/lib/jvm
 spark_home=/apps/spark
+
+[hadoop:vars]
+java_home=/usr/lib/jvm
+hadoop_home=/apps/hadoop

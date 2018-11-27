@@ -1,0 +1,32 @@
+---
+- hosts: hadoop
+  remote_user: phoenix
+  tasks:
+      - name: Prepare HADOOP_HOME directory
+        become: yes
+        file:
+            state: directory
+            path: "{{ hadoop_home }}"
+            mode: 01755
+
+      - name: Unarchive hadoop to SPARK_HOME
+        become: yes
+        unarchive:
+            remote_src: yes
+            src: https://www-eu.apache.org/dist/hadoop/common/hadoop-2.9.2/hadoop-2.9.2.tar.gz
+            dest: "{{ hadoop_home }}"
+
+      - name: Register HADOOP_HOME
+        become: yes
+        lineinfile:
+            path: /etc/profile
+            regexp: '^export HADOOP_HOME='
+            line: "export HADOOP_HOME={{ hadoop_home }}/hadoop-2.9.2"
+
+      - name: Register PATH
+        become: yes
+        lineinfile:
+            path: /etc/profile
+            regexp: '^export PATH=${HADOOP_HOME}/bin'
+            line: 'export PATH=${HADOOP_HOME}/bin:$PATH'
+
