@@ -1,0 +1,33 @@
+---
+- hosts: spark
+  remote_user: phoenix
+  tasks:
+      - name: Prepare SPARK_HOME directory
+        become: yes
+        file:
+            state: directory
+            path: "{{ spark_home }}"
+            mode: 01755
+
+      - name: Unarchive JDK to SPARK_HOME
+        become: yes
+        unarchive:
+            remote_src: yes
+            src: https://www-eu.apache.org/dist/spark/spark-2.4.0/spark-2.4.0-bin-hadoop2.7.tgz
+            dest: "{{ spark_home }}"
+
+      - name: Register SPARK_HOME
+        become: yes
+        lineinfile:
+            path: /etc/profile
+            regexp: '^export SPARK_HOME='
+            line: "export SPARK_HOME={{ spark_home }}/spark-2.4.0-bin-hadoop2.7"
+
+      - name: Register PATH
+        become: yes
+        lineinfile:
+            path: /etc/profile
+            regexp: '^export PATH=$\{SPARK_HOME\}/bin'
+            line: 'export PATH=${SPARK_HOME}/bin:$PATH'
+
+
